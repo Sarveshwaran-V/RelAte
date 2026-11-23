@@ -1,0 +1,49 @@
+[
+  {
+    "candidate_id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "Candidate Name",
+    "linkedin_url": "https://www.linkedin.com/in/example",
+    "total_experience_years": 4.5,
+    "confidence_score": 86.5,
+    "score_breakdown": {
+      "mandatory_matched": [
+        "C#",
+        ".NET Core"
+      ],
+      "mandatory_missing": [
+        "SQL Server"
+      ],
+      "optional_matched": [
+        "Azure"
+      ]
+    },
+    "evidence_snippets": [
+      "Designed and deployed .NET Core REST APIs handling 50k+ daily requests."
+    ],
+    "fit_summary": "Strong .NET Core and C# backend engineer with Azure deployment experience; lacks explicit SQL Server mention on resume."
+  },
+  {
+    "candidate_id": "6a2f8910-b38c-42e5-b827-557766551111",
+    "name": "Arun Kumar",
+    "linkedin_url": "https://www.linkedin.com/in/arunkumar-dev",
+    "total_experience_years": 5.2,
+    "confidence_score": 94.0,
+    "score_breakdown": {
+      "mandatory_matched": [
+        "C#",
+        ".NET Core",
+        "SQL Server"
+      ],
+      "mandatory_missing": [],
+      "optional_matched": [
+        "Azure",
+        "Docker"
+      ]
+    },
+    "evidence_snippets": [
+      "Led development of enterprise financial processing system in .NET Core 8 and C# with Microsoft SQL Server backend.",
+      "Automated CI/CD pipelines deploying Docker microservices on Azure App Services."
+    ],
+    "fit_summary": "Exceptional fit matching all mandatory (.NET Core, C#, SQL Server) and optional skills (Azure, Docker) with 5+ years experience."
+  }
+]

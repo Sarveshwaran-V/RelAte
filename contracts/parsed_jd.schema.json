@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ParsedJD",
+  "description": "Contract A: Output from Priya's JD Parser consumed by Hybrid Retrieval & Scoring",
+  "type": "object",
+  "properties": {
+    "role_title": {
+      "type": "string",
+      "description": "Normalized target job title extracted from the JD"
+    },
+    "mandatory_skills": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Essential non-negotiable technical skills required by the JD"
+    },
+    "optional_skills": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Preferred or nice-to-have secondary skills"
+    },
+    "min_experience_years": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Minimum years of professional experience required"
+    }
+  },
+  "required": [
+    "role_title",
+    "mandatory_skills",
+    "optional_skills",
+    "min_experience_years"
+  ],
+  "additionalProperties": false
+}

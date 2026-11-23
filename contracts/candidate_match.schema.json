@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CandidateMatchResponse",
+  "description": "Contract B: Ranked candidate match output from Backend/Scorer consumed by Pavanesh's Recruiter UI",
+  "type": "object",
+  "properties": {
+    "candidate_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique UUID identifying the candidate"
+    },
+    "name": {
+      "type": "string",
+      "description": "Candidate's full name"
+    },
+    "linkedin_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Candidate's validated or extracted LinkedIn profile URL"
+    },
+    "total_experience_years": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Extracted total years of professional experience"
+    },
+    "confidence_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Deterministic confidence score (0-100) computed purely via application math"
+    },
+    "score_breakdown": {
+      "type": "object",
+      "properties": {
+        "mandatory_matched": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of mandatory skills found in the candidate profile"
+        },
+        "mandatory_missing": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of mandatory skills requested by JD but missing on candidate profile"
+        },
+        "optional_matched": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of optional / nice-to-have skills matched"
+        }
+      },
+      "required": [
+        "mandatory_matched",
+        "mandatory_missing",
+        "optional_matched"
+      ],
+      "additionalProperties": false
+    },
+    "evidence_snippets": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Verbatim resume text snippets providing evidence for claimed skills"
+    },
+    "fit_summary": {
+      "type": "string",
+      "description": "Concise 1-2 sentence LLM summary of technical fit and gaps"
+    }
+  },
+  "required": [
+    "candidate_id",
+    "name",
+    "linkedin_url",
+    "total_experience_years",
+    "confidence_score",
+    "score_breakdown",
+    "evidence_snippets",
+    "fit_summary"
+  ],
+  "additionalProperties": false
+}

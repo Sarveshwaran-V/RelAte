@@ -1,0 +1,13 @@
+{
+  "role_title": "Senior .NET Backend Engineer",
+  "mandatory_skills": [
+    "C#",
+    ".NET Core",
+    "SQL Server"
+  ],
+  "optional_skills": [
+    "Azure",
+    "Docker"
+  ],
+  "min_experience_years": 3
+}
