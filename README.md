@@ -22,7 +22,7 @@
 2. **Strictly JD-Scoped Scoring:** Confidence scores are driven purely by technical alignment with the JD (mandatory skills, optional skills, and overall skill relevance). External variables remain with the HR team.
 3. **Two-Phase Model Strategy:** Build and validate rapidly using **Gemini Flash** (free tier), wrapped behind a clean provider abstraction layer (`ILlmProvider`) so we can switch seamlessly to **Azure OpenAI** for production.
 4. **Azure SQL Backbone:** Structured candidate metadata and vector embeddings live together in **Azure SQL** for unified hybrid querying.
-5. **Modern Tech Stack:** **.NET 10 / ASP.NET Core** backend and **Angular** recruiter portal for enterprise performance, strong typing, and rapid parallel team development.
+5. **Pure .NET & Angular Stack:** Enterprise-grade **.NET 10 / ASP.NET Core** backend + ingestion worker and **Angular** recruiter portal for strong typing, unified tooling, and parallel team productivity.
 
 ---
 
@@ -55,12 +55,11 @@ RelAte/
 │       └── DeterministicScoringEngineTests.cs # 6 xUnit tests validating mathematical scoring
 │
 ├── ingestion-worker/                   # Resume Extraction & Skill Normalization (Sivaram & Pradeep)
-│   ├── RelAte.Ingestion/               # .NET Ingestion Worker Console
-│   │   ├── ResumeExtractor.cs          # Deduplication hashing & regex metadata extraction
-│   │   └── Program.cs
-│   ├── extractor.py                    # Python extractor pipeline
-│   ├── normalizer.py                   # Canonical skill normalizer
-│   ├── embedder.py                     # Vector generator & batch upsert worker
+│   ├── RelAte.Ingestion/               # .NET 10 Ingestion Console Pipeline
+│   │   ├── ResumeExtractor.cs          # PDF (PdfPig) & DOCX (OpenXml) extraction, regex, deduplication
+│   │   ├── SkillNormalizer.cs          # LLM canonical skill normalizer with exponential backoff
+│   │   ├── VectorEmbedder.cs           # Vector embedding generator & Azure SQL batch upsert
+│   │   └── Program.cs                  # Batch runner
 │   └── golden_samples/                 # 50 Golden Sample resumes placeholder
 │
 └── frontend-ui/                        # Angular Recruiter Shortlist UI (Pavanesh - Track 4)
@@ -79,11 +78,11 @@ RelAte/
 
 ## 4. Team Task Split & Ownership
 
-| Track | Lead | Module | Day 1 Deliverable |
+| Track | Lead | Module | Deliverable |
 | :--- | :--- | :--- | :--- |
-| **Track 1** | **Sarvesh** | Architecture, Database & Deterministic Scorer | Monorepo scaffold, Azure SQL schema DDL, C# LLM provider abstraction, C# deterministic scorer + xUnit tests. |
-| **Track 2A** | **Sivaram** | Resume Parsing & Extraction | PDF/DOCX extractor for 50-resume golden sample folder. |
-| **Track 2B** | **Pradeep** | Skill Normalization & Bulk Ingestion | LLM normalizer prompt, embedding generator, batch upsert worker. |
+| **Track 1** | **Sarvesh** | Architecture, Database & Deterministic Scorer | Monorepo scaffold, Azure SQL schema DDL, C# LLM abstraction, C# deterministic scorer + xUnit tests. |
+| **Track 2A** | **Sivaram** | Resume Parsing & Extraction | C# PDF/DOCX extractor (`ResumeExtractor.cs`) for 50-resume golden sample folder. |
+| **Track 2B** | **Pradeep** | Skill Normalization & Bulk Ingestion | C# LLM normalizer (`SkillNormalizer.cs`), vector embedding generator, and Azure SQL batch upsert worker (`VectorEmbedder.cs`). |
 | **Track 3** | **Priya** | JD Parser & Hybrid Retrieval API | `/api/parse-jd` endpoint in ASP.NET Core and Tier 1 hybrid SQL query. |
 | **Track 4** | **Pavanesh** | Recruiter Shortlist UI & Export | Standalone Angular UI connected to mock contracts with CSV export & clipboard outreach tracker. |
 
@@ -105,27 +104,22 @@ cd RelAte
 ```bash
 cd backend-api
 dotnet test RelAte.slnx
+
 cd RelAte.Api
 dotnet run
 # API runs at http://localhost:5000 (Health probe: http://localhost:5000/health)
 ```
 
-### 3. Run Angular Recruiter Dashboard
+### 3. Run Ingestion Worker (.NET)
+```bash
+cd ingestion-worker/RelAte.Ingestion
+dotnet run
+```
+
+### 4. Run Angular Recruiter Dashboard
 ```bash
 cd frontend-ui
 npm install
 npm start
 # Open http://localhost:4200/
 ```
-
----
-
-## 6. Execution Milestones
-
-| Milestone | Deliverable |
-| :--- | :--- |
-| **M0: Contract Freeze** | Repo live, Azure SQL schema & JSON contracts locked, all 5 members coding in parallel. |
-| **M1: UI + JD Parser Hookup** | Pavanesh connects Angular criteria editor to Priya's live `/api/parse-jd` endpoint. |
-| **M2: 50-Resume End-to-End** | Sivaram & Pradeep seed 50 Golden Sample resumes; Priya, Sarvesh & Pavanesh verify end-to-end pipeline. |
-| **M3: 10,000+ Scale & TA Review** | Full batch ingestion completed; confidence scoring calibrated with Soumya and Vishnu. |
-| **M4: Production Cutover** | Switch LLM provider config to Azure OpenAI and deploy for live TA usage. |

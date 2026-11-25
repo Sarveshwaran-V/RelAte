@@ -1,10 +1,24 @@
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
+using UglyToad.PdfPig;
 
 namespace RelAte.Ingestion;
 
+public record ExtractedResume(
+    string FilePath,
+    string FileHash,
+    string RawText,
+    string? Email,
+    string? Phone,
+    string? LinkedInUrl
+);
+
 /// <summary>
 /// Resume text & metadata extractor for Sivaram (Track 2A)
+/// Supports PDF (PdfPig), DOCX (OpenXml), and TXT documents.
 /// </summary>
 public static class ResumeExtractor
 {
@@ -18,6 +32,47 @@ public static class ResumeExtractor
         using var stream = File.OpenRead(filePath);
         var hash = sha256.ComputeHash(stream);
         return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+    }
+
+    public static string ExtractText(string filePath)
+    {
+        var ext = Path.GetExtension(filePath).ToLowerInvariant();
+        return ext switch
+        {
+            ".pdf" => ExtractPdfText(filePath),
+            ".docx" => ExtractDocxText(filePath),
+            ".txt" => File.ReadAllText(filePath),
+            _ => throw new NotSupportedException($"Unsupported file format: {ext}")
+        };
+    }
+
+    public static string ExtractPdfText(string filePath)
+    {
+        var sb = new StringBuilder();
+        using var document = PdfDocument.Open(filePath);
+        foreach (var page in document.GetPages())
+        {
+            sb.AppendLine(page.Text);
+        }
+        return sb.ToString().Trim();
+    }
+
+    public static string ExtractDocxText(string filePath)
+    {
+        var sb = new StringBuilder();
+        using var wordDoc = WordprocessingDocument.Open(filePath, false);
+        var body = wordDoc.MainDocumentPart?.Document?.Body;
+        if (body != null)
+        {
+            foreach (var para in body.Elements<Paragraph>())
+            {
+                if (!string.IsNullOrWhiteSpace(para.InnerText))
+                {
+                    sb.AppendLine(para.InnerText);
+                }
+            }
+        }
+        return sb.ToString().Trim();
     }
 
     public static string? ExtractEmail(string text)
@@ -36,5 +91,20 @@ public static class ResumeExtractor
     {
         var match = LinkedInRegex.Match(text);
         return match.Success ? match.Value : null;
+    }
+
+    public static ExtractedResume ProcessResume(string filePath)
+    {
+        var rawText = ExtractText(filePath);
+        var hash = ComputeFileHash(filePath);
+
+        return new ExtractedResume(
+            FilePath: filePath,
+            FileHash: hash,
+            RawText: rawText,
+            Email: ExtractEmail(rawText),
+            Phone: ExtractPhone(rawText),
+            LinkedInUrl: ExtractLinkedInUrl(rawText)
+        );
     }
 }
