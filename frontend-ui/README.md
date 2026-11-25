@@ -1,23 +1,26 @@
-# Recruiter Shortlist UI (Track 4)
+# Recruiter Shortlist UI (Angular)
 
-**Owner:** Pavanesh  
+**Owner:** Pavanesh (Track 4)
 
-This web application serves as the recruiter-facing portal to interactively review/edit parsed JD criteria and browse ranked candidate cards from WhiteBlue's 10,000+ internal talent pool.
+This Angular application serves as the recruiter-facing portal to interactively review/edit parsed JD criteria and browse ranked candidate cards from WhiteBlue's 10,000+ internal talent pool.
 
 ## Features
 
 - **JD Parser & Criteria Tuning:** Paste raw JD text, auto-parse with AI into Mandatory vs. Optional skills, and edit chips interactively.
 - **Top Ranked Candidate Cards:** Displays confidence score badges, mandatory/optional breakdown tags, verbatim resume evidence snippets, fit summaries, and direct LinkedIn profile links.
 - **One-Click Export & Outreach:** One-click CSV export and copy-to-clipboard for recruiter outreach tracking.
-- **Dual Data Mode:** Toggle between **Local Mock** (zero dependency on backend) and **Live Backend** (`http://localhost:8000`).
+- **Dual Data Mode:** Toggle between **Local Mock** (zero dependency on backend) and **Live .NET API** (`http://localhost:5000`).
 
-## How to Run
+## Development Server
 
-You can run the UI directly in any modern browser by double-clicking `index.html`, or launch a local server:
-```bash
-cd frontend-ui
-npx serve -l 3000 .
-# or
-python -m http.server 3000
-```
-Then visit `http://localhost:3000`.
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Start the Angular development server:
+   ```bash
+   npm start
+   # or
+   ng serve
+   ```
+3. Navigate to `http://localhost:4200/`.

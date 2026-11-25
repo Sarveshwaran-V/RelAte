@@ -1,0 +1,157 @@
+<div class="app-container">
+  <!-- Header -->
+  <header class="app-header">
+    <div class="brand">
+      <span class="logo-mark">⚡</span>
+      <div>
+        <h1>RelAte</h1>
+        <p class="subtitle">WhiteBlue Internal Talent Retrieval & Re-Engagement Engine (.NET + Angular)</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="source-toggle">
+        <label for="modeSelect">Data Mode:</label>
+        <select id="modeSelect" [ngModel]="dataMode()" (ngModelChange)="dataMode.set($event)">
+          <option value="mock">Local Mock (Zero-blocker)</option>
+          <option value="live">Live .NET API (localhost:5000)</option>
+        </select>
+      </div>
+      <span class="badge pool-badge">Repository: 10,000+ Resumes</span>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="main-layout">
+    <!-- Left Panel: JD Parser & Criteria Editor -->
+    <section class="panel criteria-panel">
+      <div class="panel-header">
+        <h2>1. Job Description & Criteria</h2>
+        <span class="step-indicator">Track 3 / Priya</span>
+      </div>
+
+      <div class="form-group">
+        <label for="jdInput">Paste Job Description:</label>
+        <textarea id="jdInput" rows="7" [ngModel]="rawJdInput()" (ngModelChange)="rawJdInput.set($event)" placeholder="Paste raw Job Description text here..."></textarea>
+        <div class="button-row">
+          <button class="btn btn-secondary" (click)="parseJobDescription()" [disabled]="isLoading()">
+            {{ isLoading() ? '⏳ Parsing...' : '⚡ Parse with AI' }}
+          </button>
+          <button class="btn btn-ghost" (click)="loadSampleJD()">Load Sample JD</button>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="extracted-criteria">
+        <div class="form-group">
+          <label for="roleTitle">Extracted Role Title:</label>
+          <input type="text" id="roleTitle" [ngModel]="parsedJd().role_title" (ngModelChange)="parsedJd().role_title = $event">
+        </div>
+
+        <!-- Mandatory Skills Chips -->
+        <div class="form-group">
+          <label>Mandatory Skills <span class="tag-hint">(Weight: 70% | Non-negotiable)</span>:</label>
+          <div class="chips-container">
+            @for (skill of parsedJd().mandatory_skills; track $index) {
+              <span class="chip mandatory">
+                {{ skill }}
+                <span class="chip-remove" (click)="removeMandatorySkill($index)">×</span>
+              </span>
+            }
+          </div>
+          <div class="chip-input-group">
+            <input type="text" placeholder="Add mandatory skill..." [ngModel]="newMandatorySkill()" (ngModelChange)="newMandatorySkill.set($event)" (keyup.enter)="addMandatorySkill()">
+            <button class="btn-sm" (click)="addMandatorySkill()">+</button>
+          </div>
+        </div>
+
+        <!-- Optional Skills Chips -->
+        <div class="form-group">
+          <label>Optional Skills <span class="tag-hint">(Weight: 20% | Preferred)</span>:</label>
+          <div class="chips-container">
+            @for (skill of parsedJd().optional_skills; track $index) {
+              <span class="chip optional">
+                {{ skill }}
+                <span class="chip-remove" (click)="removeOptionalSkill($index)">×</span>
+              </span>
+            }
+          </div>
+          <div class="chip-input-group">
+            <input type="text" placeholder="Add optional skill..." [ngModel]="newOptionalSkill()" (ngModelChange)="newOptionalSkill.set($event)" (keyup.enter)="addOptionalSkill()">
+            <button class="btn-sm" (click)="addOptionalSkill()">+</button>
+          </div>
+        </div>
+
+        <!-- Experience Slider -->
+        <div class="form-group">
+          <div class="exp-header">
+            <label for="minExp">Minimum Experience:</label>
+            <span class="exp-val">{{ parsedJd().min_experience_years }} Years</span>
+          </div>
+          <input type="range" id="minExp" min="0" max="15" step="0.5" [ngModel]="parsedJd().min_experience_years" (ngModelChange)="updateMinExperience($event)">
+        </div>
+
+        <button class="btn btn-primary btn-block" (click)="retrieveCandidates()" [disabled]="isSearching()">
+          {{ isSearching() ? '🔍 Searching...' : '🔍 Retrieve & Rank Talent Pool' }}
+        </button>
+      </div>
+    </section>
+
+    <!-- Right Panel: Ranked Candidate Shortlist -->
+    <section class="panel candidates-panel">
+      <div class="panel-header candidates-header">
+        <div>
+          <h2>2. Ranked Shortlist</h2>
+          <p class="subtitle">Surfacing {{ candidates().length }} technical matches from WhiteBlue internal repository</p>
+        </div>
+        <div class="action-buttons">
+          <button class="btn btn-secondary" (click)="copyOutreachTracker()">📋 Copy for Outreach</button>
+          <button class="btn btn-secondary" (click)="exportCSV()">📥 Export CSV</button>
+        </div>
+      </div>
+
+      <div class="candidates-list">
+        @for (candidate of candidates(); track candidate.candidate_id; let idx = $index) {
+          <article class="candidate-card">
+            <div class="candidate-top">
+              <div>
+                <div class="candidate-name">
+                  <span>#{{ idx + 1 }} {{ candidate.name }}</span>
+                  <a [href]="candidate.linkedin_url" target="_blank" rel="noopener noreferrer" class="linkedin-link">
+                    LinkedIn Profile ↗
+                  </a>
+                </div>
+                <p class="candidate-tenure">{{ candidate.total_experience_years }} Years Total Experience</p>
+              </div>
+              <div class="score-badge" [ngClass]="candidate.confidence_score >= 85 ? 'score-high' : 'score-med'">
+                {{ candidate.confidence_score }}% Fit
+              </div>
+            </div>
+
+            <!-- Skill Pills -->
+            <div class="skill-pills-row">
+              @for (m of candidate.score_breakdown.mandatory_matched; track m) {
+                <span class="skill-pill matched">✓ {{ m }}</span>
+              }
+              @for (miss of candidate.score_breakdown.mandatory_missing; track miss) {
+                <span class="skill-pill missing">✕ Missing: {{ miss }}</span>
+              }
+              @for (opt of candidate.score_breakdown.optional_matched; track opt) {
+                <span class="skill-pill optional">+ {{ opt }}</span>
+              }
+            </div>
+
+            <!-- Verbatim Evidence Box -->
+            @for (snippet of candidate.evidence_snippets; track snippet) {
+              <div class="evidence-box">"{{ snippet }}"</div>
+            }
+
+            <p class="fit-summary">
+              <strong>Fit Summary:</strong> {{ candidate.fit_summary }}
+            </p>
+          </article>
+        }
+      </div>
+    </section>
+  </main>
+</div>

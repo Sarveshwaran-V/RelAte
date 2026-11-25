@@ -1,14 +1,13 @@
-// RelAte Mock Data for Recruiter UI Development
-// Conforms directly to Contract A (ParsedJD) and Contract B (CandidateMatchResponse)
+import { ParsedJD, CandidateMatchResponse } from './contracts.model';
 
-export const MOCK_PARSED_JD = {
+export const MOCK_PARSED_JD: ParsedJD = {
   role_title: "Senior .NET Backend Engineer",
   mandatory_skills: ["C#", ".NET Core", "SQL Server"],
   optional_skills: ["Azure", "Docker", "Microservices"],
   min_experience_years: 3.0
 };
 
-export const MOCK_CANDIDATES = [
+export const MOCK_CANDIDATES: CandidateMatchResponse[] = [
   {
     candidate_id: "6a2f8910-b38c-42e5-b827-557766551111",
     name: "Arun Kumar",
